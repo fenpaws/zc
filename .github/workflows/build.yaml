@@ -57,16 +57,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: |
-            ./zc-linux-amd64
-            ./zc-linux-arm64
-            ./zc-windows-amd64
-            ./zc-windows-arm64
-            ./zc-darwin-amd64
-            ./zc-darwin-arm64
+          files: ~/zc/zc-*
           tag_name: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
           body: ${{ steps.generate_release_notes.outputs.notes }}
           draft: false
           prerelease: false
+          fail_on_unmatched_files: true
           preserve_order: true
+          make_latest: true
