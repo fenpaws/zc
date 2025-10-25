@@ -1,0 +1,70 @@
+name: Go Release Build
+
+on:
+  release:
+    types: [created]  # Trigger on release creation
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        goos: [linux, windows, darwin]
+        goarch: [amd64, arm64]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: go.mod
+
+      - name: Build
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: 0
+        run: |
+          go build -a -ldflags="-w -s" -o zc-${{ matrix.goos }}-${{ matrix.goarch }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: zc-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: zc-${{ matrix.goos }}-${{ matrix.goarch }}
+
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Download Binaries
+        uses: actions/download-artifact@v3
+        with:
+          name: zc-*
+
+      - name: Create Release Notes
+        id: generate_release_notes
+        run: echo "::set-output name=notes::$(git log --oneline --decorate=short)"
+
+      - name: Update Release with Assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./zc-*
+          asset_name: zc-${{ matrix.goos }}-${{ matrix.goarch }}
+          asset_content_type: application/octet-stream
+
+      - name: Update Release Notes
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          name: ${{ github.event.release.name }}
+          tag_name: ${{ github.event.release.tag_name }}
+          body: ${{ steps.generate_release_notes.outputs.notes }}
