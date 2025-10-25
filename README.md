@@ -29,7 +29,7 @@ zc decompress [source file] [destination folder]
 
 ### Downloading binary
 
-TODO
+See the latest release on [GitHub](https://github.com/fenpaws/zc/releases)
 
 ### Go install
 
