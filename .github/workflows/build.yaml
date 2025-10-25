@@ -47,8 +47,6 @@ jobs:
 
       - name: Download Binaries
         uses: actions/download-artifact@v6
-        with:
-          name: zc-*
 
       - name: Generate Release Notes
         id: generate_release_notes
