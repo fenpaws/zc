@@ -32,7 +32,7 @@ jobs:
           go build -a -ldflags="-w -s" -o zc-${{ matrix.goos }}-${{ matrix.goarch }}
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v5
         with:
           name: zc-${{ matrix.goos }}-${{ matrix.goarch }}
           path: zc-${{ matrix.goos }}-${{ matrix.goarch }}
