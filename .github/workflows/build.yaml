@@ -53,13 +53,20 @@ jobs:
         run: echo "::set-output name=notes::$(git log --oneline --decorate=short)"
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2.4.1
+        uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: ./zc-*  # Upload all zc binaries
+          files: |
+            ./zc-linux-amd64
+            ./zc-linux-arm64
+            ./zc-windows-amd64
+            ./zc-windows-arm64
+            ./zc-darwin-amd64
+            ./zc-darwin-arm64
           tag_name: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
           body: ${{ steps.generate_release_notes.outputs.notes }}
           draft: false
           prerelease: false
+          preserve_order: true
