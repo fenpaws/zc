@@ -16,13 +16,13 @@ It supports setting different compression levels and shows progress bars during 
 ### Compress
 
 ```bash
-zlib-cli compress [source file/folder] [destination file] --level [0-9]
+zc compress [source file/folder] [destination file] --level [0-9]
 ```
 
 ### Decompress
 
 ```bash
-zlib-cli decompress [source file] [destination folder]
+zc decompress [source file] [destination folder]
 ```
 
 ## Installation
@@ -41,7 +41,7 @@ TODO
 2. Clone the repository.
 3. Build the tool:
    ```bash
-   go build -o zlib-cli
+   go build -a -installsuffix cgo -ldflags "-w -s" -o zc
    ```
 4. Run it from the command line.
 
