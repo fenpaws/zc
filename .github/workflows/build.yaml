@@ -1,8 +1,9 @@
 name: Go Release Build
 
 on:
-  release:
-    types: [created]  # Trigger on release creation
+  create:
+    branches:
+      - 'release/**'
 
 jobs:
   build:
