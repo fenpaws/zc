@@ -67,7 +67,19 @@ jobs:
           path: ./artifacts
       - name: Generate Release Notes
         id: generate_release_notes
-        run: echo "::set-output name=notes::$(git log --oneline --decorate=short)"
+        run: |
+          echo "## Release Notes" > notes.md
+          echo "" >> notes.md
+          echo "### Features" >> notes.md
+          git log --oneline --decorate=short --grep="feat:" >> notes.md
+          echo "" >> notes.md
+          echo "### Bug Fixes" >> notes.md
+          git log --oneline --decorate=short --grep="fix:" >> notes.md
+          echo "" >> notes.md
+          echo "### Improvements" >> notes.md
+          git log --oneline --decorate=short --grep="chore:" --grep="refactor:" --grep="perf:" >> notes.md
+          echo "" >> notes.md
+          echo "::set-output name=notes::$(cat notes.md)"
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         env:
