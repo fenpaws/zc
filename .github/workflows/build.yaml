@@ -1,28 +1,22 @@
 name: Go Release Build
-
 on:
   create:
     branches:
       - 'release/**'
-
 jobs:
   build:
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         goos: [linux, windows, darwin]
         goarch: [amd64, arm64]
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
-
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
-
       - name: Build
         env:
           GOOS: ${{ matrix.goos }}
@@ -30,34 +24,31 @@ jobs:
           CGO_ENABLED: 0
         run: |
           go build -a -ldflags="-w -s" -o zc-${{ matrix.goos }}-${{ matrix.goarch }}
-
       - name: Upload artifact
         uses: actions/upload-artifact@v5
         with:
           name: zc-${{ matrix.goos }}-${{ matrix.goarch }}
           path: zc-${{ matrix.goos }}-${{ matrix.goarch }}
-
   release:
     runs-on: ubuntu-latest
     needs: build
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
-
       - name: Download Binaries
         uses: actions/download-artifact@v6
-
+        with:
+          name: '*'  # This downloads all artifacts matching the wildcard
+          path: ./artifacts  # Custom directory for downloaded artifacts
       - name: Generate Release Notes
         id: generate_release_notes
         run: echo "::set-output name=notes::$(git log --oneline --decorate=short)"
-
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: /home/runner/work/zc/zc/zc-*
+          files: ./artifacts/zc-*  # Match all downloaded artifacts in the directory
           tag_name: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
           body: ${{ steps.generate_release_notes.outputs.notes }}
