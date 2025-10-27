@@ -80,14 +80,17 @@ jobs:
           git log --oneline --decorate=short --grep="chore:" --grep="refactor:" --grep="perf:" >> notes.md
           echo "" >> notes.md
           echo "::set-output name=notes::$(cat notes.md)"
+      - name: Extract Release Name from Branch
+        id: extract_name
+        run: echo "release_name=$(echo ${GITHUB_REF##*/} | sed 's|feature/||')" >> $GITHUB_ENV
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: ./artifacts/zc-*  # Match all downloaded artifacts in the directory
+          files: ./artifacts/zc-*
           tag_name: ${{ github.ref_name }}
-          name: Release ${{ github.ref_name }}
+          name: Release ${{ env.release_name }}
           body: ${{ steps.generate_release_notes.outputs.notes }}
           draft: false
           prerelease: false
